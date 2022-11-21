@@ -16,7 +16,6 @@ end
 -- libraries
 local library = loadLibrary("ui");
 local espLibrary = loadLibrary("esp");
-local aimbotLibrary = loadLibrary("aimbot")
 
 -- modules
 local sharedRequire = getrenv().shared.require;
