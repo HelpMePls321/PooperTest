@@ -57,27 +57,3 @@ for i, v in pairs(found) do
 end
 local chartable = debug.getupvalue(getbodyparts, 1)
 setreadonly(particle, false)
-
---Framework under this along with ui elements
-
-Aimbot:Toggle('Silent Aim', function(state)
-    Client.Toggles.SilentAim = state
-end,Client.Toggles.SilentAim)
-
-Aimbot:Toggle('Visible Check', function(state)
-    Client.Toggles.VisibleCheck = state
-end,Client.Toggles.VisibleCheck)
-
-Aimbot:Toggle('Head Shots Only', function(state)
-    Client.Toggles.Head = state
-end,Client.Toggles.Head)
-
-Aimbot:Toggle('Use Fov', function(state)
-    Client.Toggles.UseFov = state
-    FovCircle.Visible = state
-end,Client.Toggles.UseFov)
-
-Aimbot:Slider("Fov", 1, 1000, function(num)
-    Client.Values.Fov = num
-    FovCircle.Radius = num
-end,Client.Values.Fov)
