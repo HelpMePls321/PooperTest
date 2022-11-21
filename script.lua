@@ -1,8 +1,8 @@
 -- start
-local version = "1.0";
+local version = "1.1";
 
-local username = "VoidMasterX";
-local repository = "Isurus";
+local username = "HelpMePls321";
+local repository = "PooperTest";
 local baseUrl = "https://raw.githubusercontent.com/" .. username .. "/" .. repository .. "/main/";
 
 local function import(file)
