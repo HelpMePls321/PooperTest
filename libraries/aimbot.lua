@@ -1,4 +1,3 @@
-local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RandomAdamYT/DarkHub_V3/main/UILIB",true))()
 local main = lib:Window()
 local Aimbot = main:Tab('Aimbot')
 local GunMods = main:Tab('Gun Mods')
