@@ -1,59 +1,40 @@
-local FovCircle = Drawing.new("Circle")
-FovCircle.Visible = Client.Toggles.UseFov
-FovCircle.Radius = Client.Values.Fov
-FovCircle.Color = Color3.new(1, 1, 1)
-FovCircle.Thickness = 1
-FovCircle.Position = Vector2.new(workspace.Camera.ViewportSize.X * 0.5, workspace.Camera.ViewportSize.Y * 0.5)
+local Toggle1 = Section1:CreateToggle("Aimbot", Settings.Enabled, function(State)
+    Settings.Enabled = State
+end)
 
-local whitelistedcharacters = "abcdefghijklmnopqrstuvwxyz"
+local Dropdown1 = Section1:CreateDropdown("HitPart", {"Torso","Head"}, function(String)
+	Settings.AimPart = String
+end)
 
-local found = {}
-local hashes = {}
-for i, v in pairs(getnilinstances()) do
-    if v.ClassName == "ModuleScript" and (v.Name == "effects" or v.Name == "camera" or v.Name == "particle") then
-        found[v.Name] = require(v)
-    end
-end
+local Slider2 = Section1:CreateSlider("Aimbot Smoothness", 0,10,Settings.Smoothness,false, function(Value)
+    Settings.Smoothness = Value
+end)
 
-for i, v in pairs(getgc(false)) do
-    if getinfo(v).name == "loadgun" then
-        getgenv()["loadgun"] = v
-        break
-    end
-end
+local Toggle1 = Section1:CreateToggle("WallCheck",Settings.WallCheck, function(State)
+    Settings.WallCheck = State
+end)
 
-found["network"] = debug.getupvalue(found.effects.breakwindow, 1)
-found["char"] = debug.getupvalue(found.effects.muzzleflash, 2)
-found["replication"] = debug.getupvalue(found.camera.setspectate, 1)
-found["hud"] = debug.getupvalue(found.char.setmovementmode, 10)
-found["gamelogic"] = debug.getupvalue(found.char.setsprint, 1)
-found["input"] = debug.getupvalue(found.gamelogic.controllerstep, 2)
-local gunsway = debug.getupvalue(found.char.loadgrenade, 34)
-local gunbob = debug.getupvalue(found.char.loadgrenade, 33)
-local gunrequire = debug.getupvalue(loadgun, 2)
-local fromaxisangle = debug.getupvalue(found.camera.step, 11)
-local physicsignore = {workspace.Players, workspace.Camera, workspace.Ignore}
-local userinputservice = game:GetService("UserInputService")
-local runservice = game:GetService("RunService")
-local workspace = game:GetService("Workspace")
-local players = game:GetService("Players")
-local localplayer = players.LocalPlayer
-local rendertime = tick()
-local playeresp = {}
-local v3 = Vector3.new()
-local newcf = CFrame.new()
-local dot = v3.Dot
-local accel = Vector3.new(0, -workspace.Gravity, 0)
-local badtick, add, reset = tick(), 0, true
 
-for i, v in pairs(found) do
-    getgenv()[i] = v
+local Toggle1 = Section1:CreateToggle("TriggerBot", Settings.Tigger, function(State)
+    Settings.Tigger = State
+end)
 
-    for o, b in pairs(v) do
-        if not getgenv()[o] and type(b) == "function" then
-            getgenv()[o] = b
-        end
-    end
-end
-local chartable = debug.getupvalue(getbodyparts, 1)
-setreadonly(particle, false)
+local Slider2 = Section1:CreateSlider("Aimbot Radius", 0,1000, Settings.FOV, false, function(Value)
+    Settings.FOV = Value
+    Circle.Radius = Settings.FOV
+end)
+
+local Toggle1 = Section1:CreateToggle("Circle Visible", Settings.Visible, function(State)
+   Circle.Visible = State
+end)
+
+local Colorpicker3 = Section1:CreateColorpicker("Circle Color", function(Color)
+    Circle.Color = Color
+end)
+local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/1201for/dragonadventures/main/Esp-Test"))()
+
+local Toggle1 = Section1:CreateToggle("Enable Esp", Settings.Esp, function(State)
+    Settings.Esp = State
+    ESP:Toggle(Settings.Esp)
+    
+end)
