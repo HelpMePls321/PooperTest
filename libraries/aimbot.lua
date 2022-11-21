@@ -1,8 +1,3 @@
-local main = lib:Window()
-local Aimbot = main:Tab('Aimbot')
-local GunMods = main:Tab('Gun Mods')
-local Esp = main:Tab('Esp')
-local Misc = main:Tab('Miscellaneous')
 local FovCircle = Drawing.new("Circle")
 FovCircle.Visible = Client.Toggles.UseFov
 FovCircle.Radius = Client.Values.Fov
