@@ -1,91 +1,89 @@
-getgenv().AIMBOT_SETTINGS = {
-smoothness = 0,
-FOV = 80,
-VisibleCheck = true,
-}
+local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RandomAdamYT/DarkHub_V3/main/UILIB",true))()
+local main = lib:Window()
+local Aimbot = main:Tab('Aimbot')
+local GunMods = main:Tab('Gun Mods')
+local Esp = main:Tab('Esp')
+local Misc = main:Tab('Miscellaneous')
+local FovCircle = Drawing.new("Circle")
+FovCircle.Visible = Client.Toggles.UseFov
+FovCircle.Radius = Client.Values.Fov
+FovCircle.Color = Color3.new(1, 1, 1)
+FovCircle.Thickness = 1
+FovCircle.Position = Vector2.new(workspace.Camera.ViewportSize.X * 0.5, workspace.Camera.ViewportSize.Y * 0.5)
 
--- services
+local whitelistedcharacters = "abcdefghijklmnopqrstuvwxyz"
+
+local found = {}
+local hashes = {}
+for i, v in pairs(getnilinstances()) do
+    if v.ClassName == "ModuleScript" and (v.Name == "effects" or v.Name == "camera" or v.Name == "particle") then
+        found[v.Name] = require(v)
+    end
+end
+
+for i, v in pairs(getgc(false)) do
+    if getinfo(v).name == "loadgun" then
+        getgenv()["loadgun"] = v
+        break
+    end
+end
+
+found["network"] = debug.getupvalue(found.effects.breakwindow, 1)
+found["char"] = debug.getupvalue(found.effects.muzzleflash, 2)
+found["replication"] = debug.getupvalue(found.camera.setspectate, 1)
+found["hud"] = debug.getupvalue(found.char.setmovementmode, 10)
+found["gamelogic"] = debug.getupvalue(found.char.setsprint, 1)
+found["input"] = debug.getupvalue(found.gamelogic.controllerstep, 2)
+local gunsway = debug.getupvalue(found.char.loadgrenade, 34)
+local gunbob = debug.getupvalue(found.char.loadgrenade, 33)
+local gunrequire = debug.getupvalue(loadgun, 2)
+local fromaxisangle = debug.getupvalue(found.camera.step, 11)
+local physicsignore = {workspace.Players, workspace.Camera, workspace.Ignore}
+local userinputservice = game:GetService("UserInputService")
+local runservice = game:GetService("RunService")
+local workspace = game:GetService("Workspace")
 local players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+local localplayer = players.LocalPlayer
+local rendertime = tick()
+local playeresp = {}
+local v3 = Vector3.new()
+local newcf = CFrame.new()
+local dot = v3.Dot
+local accel = Vector3.new(0, -workspace.Gravity, 0)
+local badtick, add, reset = tick(), 0, true
 
--- variables
-local client = players.LocalPlayer
-local shared = getrenv().shared
-local camera = workspace.CurrentCamera
-local mouseLocation = UserInputService.GetMouseLocation
-local WorldToViewportPoint = camera.WorldToViewportPoint
+for i, v in pairs(found) do
+    getgenv()[i] = v
 
--- modules
-local replicationObject = shared.require("ReplicationObject")
-local replicationInterface = shared.require("ReplicationInterface")
+    for o, b in pairs(v) do
+        if not getgenv()[o] and type(b) == "function" then
+            getgenv()[o] = b
+        end
+    end
+end
+local chartable = debug.getupvalue(getbodyparts, 1)
+setreadonly(particle, false)
 
--- functions
-local function isAlive(entry)
-return replicationObject.isAlive(entry)
-end
+--Framework under this along with ui elements
 
-local function isVisible(p, ...)
-if not getgenv().AIMBOT_SETTINGS.VisibleCheck then
-return true
-end
+Aimbot:Toggle('Silent Aim', function(state)
+    Client.Toggles.SilentAim = state
+end,Client.Toggles.SilentAim)
 
-return #camera:GetPartsObscuringTarget({ p }, { camera, client.Character, workspace.Ignore, ... }) == 0
-end
+Aimbot:Toggle('Visible Check', function(state)
+    Client.Toggles.VisibleCheck = state
+end,Client.Toggles.VisibleCheck)
 
-local function get_closest(fov: number)
-local targetPos: Vector3 = nil
-local magnitude: number = fov or math.huge
-for _, player in pairs(players:GetPlayers()) do
-if player == client or player.Team == client.Team then
-continue
-end
+Aimbot:Toggle('Head Shots Only', function(state)
+    Client.Toggles.Head = state
+end,Client.Toggles.Head)
 
-local entry = replicationInterface.getEntry(player)
-local character = entry and replicationObject.getThirdPersonObject(entry)
+Aimbot:Toggle('Use Fov', function(state)
+    Client.Toggles.UseFov = state
+    FovCircle.Visible = state
+end,Client.Toggles.UseFov)
 
-if character and isAlive(entry) then
-local body_parts = character:getCharacterHash()
-
-local screen_pos, on_screen = WorldToViewportPoint(camera, body_parts.head.Position)
-local screen_pos_2D = Vector2.new(screen_pos.X, screen_pos.Y)
-local new_magnitude = (screen_pos_2D - mouseLocation(UserInputService)).Magnitude
-if
-on_screen
-and new_magnitude < magnitude
-and isVisible(body_parts.head.Position, body_parts.torso.Parent)
-then
-magnitude = new_magnitude
-targetPos = body_parts.head.Position
-end
-end
-end
-return targetPos
-end
-local mouse = client:GetMouse()
-local function aimAt(pos, smooth)
-local targetPos = camera:WorldToScreenPoint(pos)
-local mousePos = camera:WorldToScreenPoint(mouse.Hit.p)
-mousemoverel((targetPos.X - mousePos.X) / smooth, (targetPos.Y - mousePos.Y) / smooth)
-end
-local circle = Drawing.new("Circle")
-circle.Thickness = 2
-circle.NumSides = 12
-circle.Radius = 350
-circle.Filled = false
-circle.Transparency = 1
-circle.Color = Color3.new(1, 0.5, 0)
-circle.Visible = true
-
-RunService.RenderStepped:Connect(function()
-if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
-local _pos = get_closest(getgenv().AIMBOT_SETTINGS.FOV)
-if _pos then
-aimAt(_pos, getgenv().AIMBOT_SETTINGS.smoothness)
-end
-end
-if circle.__OBJECT_EXISTS then
-circle.Position = mouseLocation(UserInputService)
-circle.Radius = getgenv().AIMBOT_SETTINGS.FOV
-end
-end)
+Aimbot:Slider("Fov", 1, 1000, function(num)
+    Client.Values.Fov = num
+    FovCircle.Radius = num
+end,Client.Values.Fov)
