@@ -1,3 +1,9 @@
+getgenv().AIMBOT_SETTINGS = {
+smoothness = 0,
+FOV = 80,
+VisibleCheck = true,
+}
+
 -- services
 local players = game:GetService("Players")
 local RunService = game:GetService("RunService")
